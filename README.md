@@ -11,6 +11,7 @@
 -   redis 설치
     -   apt-get update
     -   apt install -y redis-server
+    -   (추가적으로 bind를 설정해야할 수 있습니다.)
 -   nestJS 설치
     -   node 설치 (V12.21.0 ~ V16.0 작동 확인)
         -   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh | bash
