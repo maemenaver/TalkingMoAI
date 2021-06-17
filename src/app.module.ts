@@ -7,6 +7,7 @@ import { User } from "./users/entities/user.entity";
 import { ConfigModule } from "./config/config.module";
 import { Config } from "./config/entities/config.entity";
 import { ScheduleModule } from "@nestjs/schedule";
+import { BullModule } from "@nestjs/bull";
 
 @Module({
     imports: [
@@ -25,6 +26,12 @@ import { ScheduleModule } from "@nestjs/schedule";
             useUnifiedTopology: true,
             useNewUrlParser: true,
             keepConnectionAlive: true,
+        }),
+        BullModule.forRoot({
+            redis: {
+                host: process.env.REDIS_HOST,
+                port: Number(process.env.REDIS_PORT),
+            },
         }),
         UsersModule,
         ConfigModule,

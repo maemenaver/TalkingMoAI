@@ -1,14 +1,13 @@
 import { Injectable } from "@nestjs/common";
-import { Interval } from "@nestjs/schedule";
-import { UsersService } from "src/users/users.service";
 import { CreateConfigDto } from "./dto/create-config.dto";
 import { UpdateConfigDto } from "./dto/update-config.dto";
-import spawnAsync from "@expo/spawn-async";
-import { getMongoManager } from "typeorm";
+import { InjectQueue } from "@nestjs/bull";
+import { Queue } from "bull";
+import { TTSDataDto } from "./dto/processor-config.dto";
 
 @Injectable()
 export class ConfigService {
-    constructor(private usersService: UsersService) {}
+    constructor(@InjectQueue("meeting") private readonly configQueue: Queue) {}
 
     create(createConfigDto: CreateConfigDto) {
         return "This action adds a new config";
@@ -28,5 +27,14 @@ export class ConfigService {
 
     remove(id: number) {
         return `This action removes a #${id} config`;
+    }
+
+    async textToSpeech(message: string) {
+        console.log("tts service test");
+
+        const result = this.configQueue.add("textToSpeech", {
+            message,
+        } as TTSDataDto);
+        return result;
     }
 }

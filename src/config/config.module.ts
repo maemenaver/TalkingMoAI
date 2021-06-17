@@ -2,10 +2,21 @@ import { Module } from "@nestjs/common";
 import { ConfigService } from "./config.service";
 import { ConfigController } from "./config.controller";
 import { UsersModule } from "src/users/users.module";
+import { BullModule } from "@nestjs/bull";
+import { ConfigProcessor } from "./config.processor";
 
 @Module({
-    imports: [UsersModule],
+    imports: [
+        BullModule.registerQueue({
+            name: "meeting",
+            defaultJobOptions: {
+                removeOnComplete: true,
+            },
+        }),
+        UsersModule,
+    ],
     controllers: [ConfigController],
-    providers: [ConfigService],
+    providers: [ConfigService, ConfigProcessor],
+    exports: [ConfigService],
 })
 export class ConfigModule {}
