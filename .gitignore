@@ -34,3 +34,4 @@ lerna-debug.log*
 !.vscode/extensions.json
 talkingmoai-8d4204346eed.json
 output.wav
+.env.development

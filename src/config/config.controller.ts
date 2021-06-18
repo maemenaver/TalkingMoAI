@@ -9,6 +9,7 @@ import {
     Query,
     HttpException,
     HttpStatus,
+    HttpService,
 } from "@nestjs/common";
 import { ConfigService } from "./config.service";
 import { CreateConfigDto } from "./dto/create-config.dto";
@@ -16,7 +17,10 @@ import { UpdateConfigDto } from "./dto/update-config.dto";
 
 @Controller("config")
 export class ConfigController {
-    constructor(private readonly configService: ConfigService) {}
+    constructor(
+        private readonly configService: ConfigService,
+        private httpService: HttpService
+    ) {}
 
     @Post()
     create(@Body() createConfigDto: CreateConfigDto) {
@@ -28,20 +32,46 @@ export class ConfigController {
         return this.configService.findAll();
     }
 
-    @Get("tts")
-    async tts(@Query("message") message: string) {
+    @Post("tts")
+    async tts(@Body() { message, userID }) {
         try {
-            if (!message) {
-                console.log(message);
+            if (!message || !userID) {
                 throw new HttpException(
-                    "Not found meesage query",
+                    "Not found query",
                     HttpStatus.BAD_REQUEST
                 );
             }
 
-            this.configService.textToSpeech(message);
+            const pingpong = await this.httpService
+                .post(
+                    `${process.env.PINGPONG_URL}/${userID}`,
+                    {
+                        request: {
+                            query: message,
+                        },
+                    },
+                    {
+                        headers: {
+                            Authorization: `Basic ${process.env.PINGPONG_AUTHORIZATION}`,
+                            "Content-Type": "application/json",
+                        },
+                    }
+                )
+                .toPromise();
 
-            return message;
+            console.dir(pingpong.data.response, {
+                maxArrayLength: null,
+                maxStringLength: null,
+            });
+
+            let resultPingpong = [];
+            for (let i = 0; i < pingpong.data.response.replies.length; i++) {
+                const text = pingpong.data.response.replies[i].text;
+                resultPingpong = [...resultPingpong, text];
+                this.configService.textToSpeech(text);
+            }
+
+            return resultPingpong;
         } catch (err) {
             console.error(err);
             throw err;
