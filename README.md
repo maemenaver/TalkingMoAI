@@ -4,7 +4,6 @@
 
 ## 실행 전 해야할 것
 
--   모든 작업을 하기 전에 sudo -s 명령어를 입력하여 root에서 실행하도록 합니다.
 -   프로젝트 설치
     -   git clone https://github.com/maemenaver/TalkingMoAI.git
 -   google api tts 서비스 키 발급

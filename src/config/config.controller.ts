@@ -59,17 +59,29 @@ export class ConfigController {
                 )
                 .toPromise();
 
-            console.dir(pingpong.data.response, {
-                maxArrayLength: null,
-                maxStringLength: null,
-            });
+            // console.dir(pingpong.data.response, {
+            //     maxArrayLength: null,
+            //     maxStringLength: null,
+            // });
 
             let resultPingpong = [];
             for (let i = 0; i < pingpong.data.response.replies.length; i++) {
-                const text = pingpong.data.response.replies[i].text;
-                resultPingpong = [...resultPingpong, text];
-                this.configService.textToSpeech(text);
+                const type = pingpong.data.response.replies[i].type;
+                switch (type) {
+                    case "text":
+                        const text = pingpong.data.response.replies[i].text;
+                        resultPingpong = [...resultPingpong, { type, text }];
+                        this.configService.textToSpeech(text);
+                        break;
+
+                    case "image":
+                        const url = pingpong.data.response.replies[i].image.url;
+                        resultPingpong = [...resultPingpong, { type, url }];
+                        break;
+                }
             }
+
+            console.log(resultPingpong);
 
             return resultPingpong;
         } catch (err) {
